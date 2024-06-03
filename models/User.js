@@ -15,9 +15,16 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true, // Ensures emails are unique
+    validate: {
+      validator: function (value) { 
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      },
+      message: props => `${props.value} is not a valid email address!`
+    }
   },
 });
 
 const User = mongoose.model('User', UserSchema);
 
 module.exports = User;
+

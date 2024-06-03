@@ -1,87 +1,111 @@
+
+// filename: routes/postRoutes.js
 const express = require('express');
 const router = express.Router();
-const posts = require('../data/posts');
-const { body, validationResult } = require('express-validator');
+const Post = require('../models/Post'); // Import Mongoose Post model
+const { body, validationResult } = require('express-validator'); // Import validation library
 
-router.get('/', (req, res) => {
+// GET all posts (using Mongoose)
+router.get('/', async (req, res) => {
+  try {
+    console.log('GET /posts - Request received');
+    const posts = await Post.find(); // find() retrieves all documents from Post collection
+    console.log('GET /posts - Posts found:', posts);
     res.json(posts);
+  } catch (error) {
+    console.error('GET /posts - Error:', error);
+    res.status(500).json({ error: 'Failed to retrieve posts' });
+  }
 });
 
-router.get('/userId/:userId', (req, res) => {
-    let filteredPosts = posts.filter(p => p.userId == req.params.userId)
-    res.json(filteredPosts)
-})
+// POST a new post (using Mongoose)
+router.post('/',
+  // Input validation using express-validator
+  body('userId').isMongoId().withMessage('userId must be a valid MongoDB ID'),
+  body('title').isString().notEmpty().withMessage('Title is required'),
+  body('content').isString().notEmpty().withMessage('Content is required'),
+  body('paletteId').isMongoId().withMessage('paletteId must be a valid MongoDB ID'),
+  async (req, res) => {
+    console.log('POST /posts - Request received');
+    console.log('POST /posts - Request Body:', req.body);
 
-router.post('/', 
-    body('userId').isNumeric().withMessage('userId must be a number'),
-    body('title').isString().notEmpty().withMessage('Title is required'),
-    body('content').isString().notEmpty().withMessage('Content is required'),
-    (req, res) => {
-        // Check for validation errors
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-        if (req.body.userId && req.body.title && req.body.content) {
-            const post = {
-                id: posts[posts.length - 1].id + 1,
-                userId: req.body.userId,
-                title: req.body.title,
-                content: req.body.content,
-            };
-  
-            posts.push(post);
-            res.json(posts[posts.length - 1]);
-        } else {
-            res.json({ error: "Insufficient Data" }); 
-        }
+    const errors = validationResult(req); // Check for validation errors
+    if (!errors.isEmpty()) {
+      console.log('POST /posts - Validation Errors:', errors.array());
+      return res.status(400).json({ errors: errors.array() }); // Return errors as JSON
     }
+
+    try {
+      const newPost = new Post(req.body); // Create new post instance
+      console.log('POST /posts - New Post Object:', newPost);
+      const savedPost = await newPost.save(); // Save to MongoDB
+      console.log('POST /posts - Post saved:', savedPost);
+      res.status(201).json(savedPost); // Send saved post as JSON
+    } catch (error) {
+      console.error('POST /posts - Error:', error);
+      res.status(500).json({ error: 'Failed to create post' });
+    }
+  }
 );
 
-router.get('/:id', (req, res, next) => {
-    const post = posts.find((post) => post.id == req.params.id)
-    if (post) {
-        res.json(post)
-    } else {
-        next()
-    }
+// GET a specific post by ID (using Mongoose)
+router.get('/:id', async (req, res) => {
+  const postId = req.params.id; // Get ID from the request params
+  console.log(`GET /posts/${postId} - Request received`);
+
+  try {
+    const post = await Post.findById(postId); // Find a single document by its _id
+    console.log(`GET /posts/${postId} - Post found:`, post);
+    res.json(post); // Respond with the found post as JSON
+  } catch (error) {
+    console.error(`GET /posts/${postId} - Error:`, error);
+    res.status(500).json({ error: 'Failed to retrieve post' });
+  }
 });
 
-router.patch('/:id', 
-    body('title').optional().isString().notEmpty().withMessage('Title is required'),
-    body('content').optional().isString().notEmpty().withMessage('Content is required'),
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
+// PATCH (Update) a specific post by ID (using Mongoose)
+router.patch('/:id',
+  // Input validation for optional fields
+  body('title').optional().isString().notEmpty().withMessage('Title is required'),
+  body('content').optional().isString().notEmpty().withMessage('Content is required'),
+  async (req, res) => {
+    const postId = req.params.id;
+    console.log(`PATCH /posts/${postId} - Request received`);
+    console.log(`PATCH /posts/${postId} - Request Body:`, req.body);
 
-        const postIndex = posts.findIndex((p) => p.id == req.params.id);
-
-        if (postIndex !== -1) {
-            // Update only if new values are provided
-            if (req.body.title) {
-                posts[postIndex].title = req.body.title;
-            }
-            if (req.body.content) {
-                posts[postIndex].content = req.body.content;
-            }
-            res.json(posts[postIndex]);
-        } else {
-            next(); // Let the 404 handler deal with it
-        }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(`PATCH /posts/${postId} - Validation Errors:`, errors.array());
+      return res.status(400).json({ errors: errors.array() });
     }
+
+    try {
+      const updatedPost = await Post.findByIdAndUpdate(postId, req.body, { new: true });
+      // Find by ID and update, { new: true } returns the updated document
+      console.log(`PATCH /posts/${postId} - Post updated:`, updatedPost);
+      res.json(updatedPost); // Respond with the updated post
+    } catch (error) {
+      console.error(`PATCH /posts/${postId} - Error:`, error);
+      res.status(500).json({ error: 'Failed to update post' });
+    }
+  }
 );
-router.delete('/:id', (req, res, next) => {
-    const post = posts.find((p, i) => {
-        if (p.id == req.params.id) {
-            posts.splice(i, 1);
-            return true;
-        }
-    });
-  
-    if (post) res.json(post);
-    else next();
+
+// DELETE a specific post by ID (using Mongoose)
+router.delete('/:id', async (req, res) => {
+  const postId = req.params.id;
+  console.log(`DELETE /posts/${postId} - Request received`);
+
+  try {
+    const deletedPost = await Post.findByIdAndDelete(postId);
+    // Find by ID and remove from MongoDB
+    console.log(`DELETE /posts/${postId} - Post deleted:`, deletedPost);
+    res.status(204).send(); // 204 No Content success status response code
+  } catch (error) {
+    console.error(`DELETE /posts/${postId} - Error:`, error);
+    res.status(500).json({ error: 'Failed to delete post' });
+  }
 });
 
 module.exports = router;
+

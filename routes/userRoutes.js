@@ -1,78 +1,115 @@
+
+// filename: routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const users = require('../data/users');
-const { body, validationResult } = require('express-validator');
+const User = require('../models/User');
+const { body, validationResult } = require('express-validator'); // Import validation library
 
-router.get('/', (req, res) => {
-    res.render('users', { users: users, title: 'Users' }); 
+// GET all users
+router.get('/', async (req, res) => {
+  try {
+    console.log('GET /users - Request received');
+    // Find all users in the database
+    const users = await User.find();
+    console.log('GET /users - Users found:', users);
+    // Render the 'users' view and pass the users data to the view
+    res.render('users', { users: users, title: 'Users' });
+  } catch (error) {
+    console.error('GET /users - Error:', error);
+    // Send a 500 status code and a JSON response indicating the error
+    res.status(500).json({ error: 'Failed to retrieve users' });
+  }
 });
 
-router.get('/:id', (req, res) => { 
-    // ... logic to fetch and render a single user 
-    const user = users.find((user) => user.id == req.params.id)
-    if (user) {
-        res.render('user', { user: user, title: 'User' }); // Assuming you have a 'user' view
-    }
-    else {
-        res.status(404).send('User not found'); 
-    }
+// GET a specific user by ID
+router.get('/:id', async (req, res) => {
+  const userId = req.params.id;
+  console.log(`GET /users/${userId} - Request received`);
+  try {
+    // Find a user by their ID
+    const user = await User.findById(userId);
+    console.log(`GET /users/${userId} - User found:`, user);
+    // Render the 'user' view and pass the user data to the view
+    res.render('user', { user: user, title: 'User' });
+  } catch (error) {
+    console.error(`GET /users/${userId} - Error:`, error);
+    // Send a 404 status code if the user is not found
+    res.status(404).send('User not found');
+  }
 });
 
 // Route to display a form for creating a new user
 router.get('/new', (req, res) => {
-  res.render('newUserForm'); // Render a view with a form
+  console.log('GET /users/new - Request received');
+  // Render the 'newUserForm' view
+  res.render('newUserForm');
 });
-// POST route with validation logic 
-router.post('/', 
+
+// POST a new user with validation
+router.post('/',
+    // Validate the request body
     body('name').isString().notEmpty().withMessage('Name is required'),
     body('username').isString().notEmpty().withMessage('Username is required').isLength({ min: 4 }).withMessage('Username must be at least 4 characters long'),
     body('email').isEmail().normalizeEmail().withMessage('Invalid email format'),
-    (req, res) => {
+    async (req, res) => {
+        console.log('POST /users - Request received');
+        console.log('POST /users - Request Body:', req.body);
         // Check for validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() }); 
+            console.log('POST /users - Validation Errors:', errors.array());
+            // Return a 400 status code and a JSON response containing the validation errors
+            return res.status(400).json({ errors: errors.array() });
         }
-
+        // Check if the required fields are present in the request body
         if (req.body.name && req.body.username && req.body.email) {
-            const foundUser = users.find((u) => u.username == req.body.username)
-    
-            if (foundUser) {
-                return res.status(400).json({ error: "Username Already Taken" });
+            try {
+              // Create a new user instance with the data from the request body
+              const newUser = new User(req.body);
+              console.log('POST /users - New User Object:', newUser);
+              // Save the new user to the database
+              const savedUser = await newUser.save();
+              console.log('POST /users - User saved:', savedUser);
+              // Redirect to the user's profile page after successful creation
+              res.redirect(`/users/${savedUser.id}`);
+            } catch (error) {
+              console.error('POST /users - Error:', error);
+              // Check if the error is a duplicate key error (e.g., username or email already exists)
+              if (error.code === 11000) {
+                return res.status(400).json({ error: "Username or email already taken." });
+              }
+              // Send a 500 status code and a JSON response indicating the error
+              res.status(500).json({ error: 'Failed to create user' });
             }
-
-            const user = {
-                id: users[users.length - 1].id + 1,
-                name: req.body.name,
-                username: req.body.username,
-                email: req.body.email,
-            };
-            users.push(user);
-            // Redirect to the newly created user page
-            res.redirect(`/users/${user.id}`); 
         } else {
+            // Return a 400 status code and a JSON response indicating insufficient data
             return res.status(400).json({ error: "Insufficient Data" });
         }
     }
 );
 
-// ... add other user routes (PUT)
+// DELETE a specific user by username
+router.delete('/', async (req, res) => {
+  const username = req.query.username;
+  console.log('DELETE /users - Request received');
+  console.log('DELETE /users - Username:', username);
 
-// DELETE route with query parameter filtering 
-router.delete('/', (req, res, next) => {
-    const username = req.query.username;
-
-    if (username) { 
-        const userIndex = users.findIndex((u) => u.username === username);
-
-        if (userIndex !== -1) {
-            users.splice(userIndex, 1);
-            res.status(204).send(); // 204 No Content 
-        } else {
-            next({ status: 404, message: 'User not found' }); // Error handled by middleware
-        }
-    } else {
-        next({ status: 400, message: 'Username query parameter is required for deletion.' }); 
+  if (username) {
+    try {
+      // Find a user by their username and delete them from the database
+      const deletedUser = await User.findOneAndDelete({ username: username });
+      console.log('DELETE /users - User deleted:', deletedUser);
+      // Send a 204 No Content status code after successful deletion
+      res.status(204).send();
+    } catch (error) {
+      console.error('DELETE /users - Error:', error);
+      // Send a 404 status code if the user is not found
+      res.status(404).json({ error: 'User not found' });
     }
+  } else {
+    // Return a 400 status code and a JSON response if the username query parameter is missing
+    res.status(400).json({ error: 'Username query parameter is required for deletion.' });
+  }
 });
-module.exports = router; 
+
+module.exports = router;

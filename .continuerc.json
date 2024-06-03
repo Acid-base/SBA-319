@@ -1,0 +1,149 @@
+{
+    "allowAnonymousTelemetry": false,
+    "models": [
+        {
+            "title": "Continue Dev (free trial)",
+            "model": "continue-dev",
+            "provider": "continue-proxy"
+        },
+        {
+            "title": "OpenAI (free trial)",
+            "model": "gpt-3.5-turbo",
+            "provider": "openai"
+        },
+        {
+            "model": "AUTODETECT",
+            "title": "Ollama",
+            "completionOptions": {},
+            "apiBase": "http://localhost:11434",
+            "provider": "ollama"
+        },
+        {
+            "title": "Gemini 1.5 Pro",
+            "model": "gemini-1.5-pro-latest",
+            "contextLength": 1000000,
+            "apiKey": "AIzaSyAG6G_N3WX714PgXTJuPEcMOpmA2RTFD9c",
+            "provider": "gemini"
+        }
+    ],
+    "systemMessage": "You are an expert MERN stack developer, here to help me build web applications.",
+    "completionOptions": {
+        "stream": true,
+        "temperature": 0.5,
+        "topP": 1,
+        "topK": 40,
+        "presencePenalty": 0,
+        "frequencyPenalty": 0,
+        "mirostat": 1,
+        "stop": [],
+        "maxTokens": 1024
+    },
+    "customCommands": [
+        {
+            "name": "Install NPM Package",
+            "description": "Installs an NPM package in my project.",
+            "parameters": {
+                "packageName": {
+                    "type": "string",
+                    "description": "Name of the package to install (e.g., react-router-dom)"
+                },
+                "isDevDependency": {
+                    "type": "boolean",
+                    "description": "Whether to install as a dev dependency (true) or not (false)",
+                    "defaultValue": false
+                }
+            }
+        },
+        {
+            "name": "Generate Mongoose Model",
+            "description": "Generates a Mongoose model based on a schema.",
+            "parameters": {
+                "modelName": {
+                    "type": "string",
+                    "description": "Name of the model (e.g., User)"
+                },
+                "schema": {
+                    "type": "object",
+                    "description": "Mongoose schema definition in JSON format"
+                }
+            }
+        },
+        {
+            "name": "Create React Component",
+            "description": "Creates a new React component.",
+            "parameters": {
+                "componentName": {
+                    "type": "string",
+                    "description": "Name of the component (e.g., MyComponent)"
+                },
+                "functional": {
+                    "type": "boolean",
+                    "description": "Whether to create a functional component (true) or a class component (false)",
+                    "defaultValue": true
+                },
+                "exportType": {
+                    "type": "string",
+                    "description": "Export type: 'default', 'named', or 'none'",
+                    "defaultValue": "default"
+                }
+            }
+        }
+    ],
+    "contextProviders": [
+        {
+            "name": "code"
+        },
+        {
+            "name": "diff"
+        },
+        {
+            "name": "terminal"
+        },
+        {
+            "name": "docs",
+            "params": {
+                "providers": [
+                    "mdn",
+                    "js",
+                    "npm",
+                    "react",
+                    "mongodb",
+                    "mongoose",
+                    "express"
+                ]
+            }
+        },
+        {
+            "name": "open",
+            "params": {
+                "onlyPinned": true
+            }
+        },
+        {
+            "name": "codebase",
+            "params": {
+                "nRetrieve": 50,
+                "nFinal": 10,
+                "useReranking": true
+            }
+        },
+        {
+            "name": "google",
+            "params": {
+                "serperApiKey": "YOUR_SERPER_API_KEY"
+            }
+        }
+    ],
+    "userToken": "null",
+    "dataServerUrl": "",
+    "disableSummaries": false,
+    "disableIndexing": false,
+    "disableSessionTitles": false,
+    "embeddingsProvider": {
+        "provider": "openai",
+        "model": "text-embedding-ada-002"
+    },
+    "messageTesting": {
+        "enabled": true
+    }
+}

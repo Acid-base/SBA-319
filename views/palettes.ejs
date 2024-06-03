@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css"> 
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <div class="palette-container">
+    <% palettes.forEach(palette => { %>
+      <h2><%= palette.name %></h2>
+      <ul class="color-list">
+        <% palette.colors.forEach(color => { %>
+          <li class="color-box" style="background-color: <%= color %>"></li>
+        <% }); %>
+      </ul>
+  <% }); %>
+  </div>
+
+</body>
+</html>

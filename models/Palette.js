@@ -9,6 +9,12 @@ const PaletteSchema = new mongoose.Schema({
   colors: {
     type: [String], // Array of hex color codes
     required: true,
+    validate: {
+      validator: function (value) {
+        return value.every((color) => /^[#]?[0-9A-Fa-f]{6}$/.test(color));
+      },
+      message: props => `${props.value} is not a valid array of hex color codes!`
+    }
   },
   creatorID: {
     type: mongoose.Schema.Types.ObjectId, 
