@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="./styles.css"> 
+</head>
+<body>
+    <h1><%= title %></h1>
+    <ul>
+        <% posts.forEach(post => { %>
+            <li>
+                <h2><%= post.title %></h2>
+                <p><%= post.content %></p>
+                <p>Posted by User ID: <%= post.userId %></p>
+            </li>
+        <% }); %>
+    </ul>
+</body>
+</html>
