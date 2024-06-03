@@ -65,4 +65,3 @@ ${time.toLocaleTimeString()}: Received a ${req.method} request to ${req.url}.`
   .catch(err => {
     console.error('Failed to connect to database:', err);
   });
-
