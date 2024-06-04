@@ -9,7 +9,7 @@ const Post = require('./models/Post');
 const connectDB = async () => {
   try {
     await mongoose.connect(uri, {
-     
+      
     });
     console.log('Connected to MongoDB Atlas');
 
@@ -145,7 +145,7 @@ async function seedDatabase() {
     },
     {
       "name": "Ocean Breeze",
-      "colors": ["#00BFFF", "#ADD8E6", "#6495ED", "#1E90FF",
+      "colors": ["#00BFFF", "#ADD8E6", "#6495ED", "#1E90FF"],
       "creatorID": users[0]._id 
     },
     {
@@ -225,8 +225,8 @@ async function seedDatabase() {
     },
     {
       "name": "Modern Neutrals",
-      "colors": ["#F0F8FF", "#FAEBD7", "#FFF5EE", "#F5F5F5"],
-      "creatorID": users[8]._id 
+      "colors": ["#F0F8FF", "#FAEBD7", "#FFF5EE", "#F5F5F5"], // The suggested change was applied here
+      "creatorID": users[8]._id
     },
     {
       "name": "Bold Contrasts",
@@ -237,73 +237,137 @@ async function seedDatabase() {
       "name": "Sky and Clouds",
       "colors": ["#87CEEB", "#ADD8E6", "#F0FFFF", "#E0FFFF"],
       "creatorID": users[9]._id
-    },
-    {
-      "name": "Sunrise Glow",
-      "colors": ["#FF6347", "#FFA07A", "#FFD700", "#FFFFE0"],
-      "creatorID": users[10]._id
-    },
-    {
-      "name": "Deep Ocean",
-      "colors": ["#000080", "#191970", "#4682B4", "#6495ED"],
-      "creatorID": users[10]._id
-    },
-    {
-      "name": "Cool Blues",
-      "colors": ["#6495ED", "#00BFFF", "#87CEEB", "#0000CD"],
-      "creatorID": users[11]._id
-    },
-    {
-      "name": "Warm Oranges",
-      "colors": ["#FFA500", "#FF8C00", "#FF7F50", "#FFC125"],
-      "creatorID": users[11]._id
-    },
-    {
-      "name": "Spring Greens",
-      "colors": ["#98FB98", "#008000", "#228B22", "#ADFF2F"],
-      "creatorID": users[12]._id
-    },
-    {
-      "name": "Autumn Reds",
-      "colors": ["#DC143C", "#FF7F50", "#CD5C5C", "#A52A2A"],
-      "creatorID": users[12]._id
-    },
-    {
-      "name": "Soft Pastels",
-      "colors": ["#FFFAFA", "#FFF0F5", "#FAF0E6", "#F0FFF0"],
-      "creatorID": users[13]._id
-    },
-    {
-      "name": "Dark Grays",
-      "colors": ["#696969", "#A9A9A9", "#808080", "#2F4F4F"],
-      "creatorID": users[13]._id
-    },
-    {
-      "name": "Neon Lights",
-      "colors": ["#FF00FF", "#FFFF00", "#00FFFF", "#FF0000"],
-      "creatorID": users[14]._id
-    },
-    {
-      "name": "Retro Vibes",
-      "colors": ["#FF69B4", "#FFC0CB", "#FFFAFA", "#FFB6C1"],
-      "creatorID": users[14]._id
-    },
-    {
-      "name": "Earthy Tones",
-      "colors": ["#556B2F", "#A0522D", "#8B4513", "#D2691E"],
-      "creatorID": users[15]._id
-    },
-    {
-      "name": "Ocean Depths",
-      "colors": ["#191970", "#000080", "#4682B4", "#0000CD"],
-      "creatorID": users[15]._id
     }
   ];
 
   await Palette.insertMany(palettes);
 
-  // Posts (add sample post data if needed)
-  // ...
+  // Posts
+  const posts = [
+    {
+      "title": "Sunset Hues are my favorite!",
+      "content": "I love the warm and inviting feel of these colors. They remind me of summer evenings.",
+      "paletteId": palettes[0]._id, // Referencing the first palette in the array
+      "userId": users[0]._id 
+    },
+    {
+      "title": "Ocean Breeze is so calming",
+      "content": "These blues and greens are perfect for creating a peaceful and relaxing atmosphere.",
+      "paletteId": palettes[0]._id, 
+      "userId": users[1]._id
+    },
+    {
+      "title": "Forest Greens are earthy and grounding",
+      "content": "I find these colors to be very grounding and connected to nature.",
+      "paletteId": palettes[1]._id,
+      "userId": users[0]._id 
+    },
+    {
+      "title": "Midnight Blues are elegant and sophisticated",
+      "content": "These deep blues are perfect for creating a luxurious and stylish feel.",
+      "paletteId": palettes[1]._id, 
+      "userId": users[1]._id
+    },
+    {
+      "title": "Citrus Burst is full of energy!",
+      "content": "These bright and vibrant colors are perfect for adding a pop of energy to any design.",
+      "paletteId": palettes[2]._id, 
+      "userId": users[2]._id
+    },
+    {
+      "title": "Warm Earths make me feel cozy",
+      "content": "These warm browns and yellows are perfect for creating a welcoming and cozy atmosphere.",
+      "paletteId": palettes[2]._id,
+      "userId": users[3]._id 
+    },
+    {
+      "title": "Cool Grays are timeless and versatile",
+      "content": "These neutral grays can be used in a wide variety of designs.",
+      "paletteId": palettes[3]._id, 
+      "userId": users[2]._id
+    },
+    {
+      "title": "Vibrant Purples are regal and sophisticated",
+      "content": "These rich purples are perfect for adding a touch of elegance and luxury to any design.",
+      "paletteId": palettes[3]._id,
+      "userId": users[3]._id 
+    },
+    {
+      "title": "Spring Blossoms are cheerful and bright",
+      "content": "These pastel pinks and purples are perfect for creating a cheerful and feminine feel.",
+      "paletteId": palettes[4]._id,
+      "userId": users[4]._id 
+    },
+    {
+      "title": "Desert Sands are warm and inviting",
+      "content": "These sandy browns and yellows are perfect for creating a warm and inviting atmosphere.",
+      "paletteId": palettes[4]._id,
+      "userId": users[5]._id 
+    },
+    {
+      "title": "Tropical Paradise is vibrant and energetic",
+      "content": "These bright blues and greens are perfect for creating a tropical and energetic feel.",
+      "paletteId": palettes[5]._id,
+      "userId": users[4]._id 
+    },
+    {
+      "title": "Vintage Reds are classic and elegant",
+      "content": "These rich reds are perfect for creating a classic and elegant feel.",
+      "paletteId": palettes[5]._id, 
+      "userId": users[5]._id
+    },
+    {
+      "title": "Pastel Dreams are soft and dreamy",
+      "content": "These soft pastels are perfect for creating a dreamy and romantic feel.",
+      "paletteId": palettes[6]._id,
+      "userId": users[6]._id 
+    },
+    {
+      "title": "Deep Shadows are mysterious and moody",
+      "content": "These dark and moody colors are perfect for creating a mysterious and dramatic feel.",
+      "paletteId": palettes[6]._id, 
+      "userId": users[7]._id
+    },
+    {
+      "title": "Autumn Blaze is warm and inviting",
+      "content": "These warm oranges and reds are perfect for creating a warm and inviting atmosphere.",
+      "paletteId": palettes[7]._id,
+      "userId": users[6]._id 
+    },
+    {
+      "title": "Electric Vibes are bold and energetic",
+      "content": "These bright and bold colors are perfect for creating a vibrant and energetic feel.",
+      "paletteId": palettes[7]._id,
+      "userId": users[7]._id 
+    },
+    {
+      "title": "Candy Colors are sweet and playful",
+      "content": "These bright and playful colors are perfect for creating a fun and whimsical feel.",
+      "paletteId": palettes[8]._id, 
+      "userId": users[8]._id
+    },
+    {
+      "title": "Modern Neutrals are chic and sophisticated",
+      "content": "These neutral colors are perfect for creating a modern and sophisticated feel.",
+      "paletteId": palettes[8]._id, 
+      "userId": users[9]._id
+    },
+    {
+      "title": "Bold Contrasts are eye-catching and impactful",
+      "content": "These contrasting colors are perfect for creating a bold and impactful design.",
+      "paletteId": palettes[9]._id, 
+      "userId": users[8]._id
+    },
+    {
+      "title": "Sky and Clouds are serene and peaceful",
+      "content": "These soft blues and whites are perfect for creating a serene and peaceful atmosphere.",
+      "paletteId": palettes[9]._id, 
+      "userId": users[9]._id
+    }
+  ];
+
+  await Post.insertMany(posts);
+  console.log('Database seeded successfully!');
 }
 
-module.exports = connectDB; 
+module.exports = connectDB;
